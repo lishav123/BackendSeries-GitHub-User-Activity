@@ -7,3 +7,7 @@ dependencies = [
     "httpx>=0.28.1",
     "rich>=14.3.3",
 ]
+
+[project.scripts]
+# format is: command-name = "module.file:function"
+github-activity = "github_activity.main:cli"

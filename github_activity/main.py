@@ -2,7 +2,19 @@ import asyncio
 import itertools
 from httpx import AsyncClient
 from rich import print
+import argparse
 
+parser = argparse.ArgumentParser(
+    description="Fetch and beautifully display a user's recent GitHub activity."
+)
+
+parser.add_argument(
+    "username",
+    type=str,
+    help="The GitHub username to look up (e.g., lishav123)"
+)
+
+args = parser.parse_args()
 
 def parse(data: dict, count: int = 1) -> str:
     event_type = data.get("type")
@@ -78,6 +90,9 @@ def parse(data: dict, count: int = 1) -> str:
 async def fetchGh(name):
     async with AsyncClient() as client:
         response = await client.get(f"https://api.github.com/users/{name}/events")
+        if response.status_code == 404:
+            return ["[red]User not found, probably, Username Incorrect[/red]"]
+
         events = response.json()
 
         # Helper to group by event type, repo, and action (so 'opened' isn't grouped with 'closed')
@@ -100,10 +115,12 @@ async def fetchGh(name):
 
 
 async def main():
-    resps = await fetchGh("lishav123")
+    resps = await fetchGh(args.username)
     for resp in resps:
         print(resp)
 
+def cli():
+    asyncio.run(main())
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    cli()
