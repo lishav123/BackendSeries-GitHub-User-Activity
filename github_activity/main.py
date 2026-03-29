@@ -1,5 +1,7 @@
 import asyncio
 import itertools
+
+import httpx
 from httpx import AsyncClient
 from rich import print
 import argparse
@@ -90,8 +92,12 @@ def parse(data: dict, count: int = 1) -> str:
 async def fetchGh(name):
     async with AsyncClient() as client:
         response = await client.get(f"https://api.github.com/users/{name}/events")
+        print(response.status_code)
         if response.status_code == 404:
             return ["[red]User not found, probably, Username Incorrect[/red]"]
+
+        if response.status_code != 200:
+            return ["[red]Something went wrong, try again[/red]"]
 
         events = response.json()
 
@@ -115,7 +121,11 @@ async def fetchGh(name):
 
 
 async def main():
-    resps = await fetchGh(args.username)
+    try:
+        resps = await fetchGh(args.username)
+    except httpx.ConnectError:
+        resps = ["[red]Something is wrong with your internet connection![/red]"]
+
     for resp in resps:
         print(resp)
 
