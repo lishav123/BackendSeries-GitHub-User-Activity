@@ -92,7 +92,7 @@ def parse(data: dict, count: int = 1) -> str:
 async def fetchGh(name):
     async with AsyncClient() as client:
         response = await client.get(f"https://api.github.com/users/{name}/events")
-        print(response.status_code)
+
         if response.status_code == 404:
             return ["[red]User not found, probably, Username Incorrect[/red]"]
 
